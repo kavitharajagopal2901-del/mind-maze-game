@@ -69,11 +69,15 @@ public class PlayerController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Adaptive Challenge Engine: the best next question for this player. */
+    /**
+     * Adaptive Challenge Engine: the best next question for this player.
+     * Optional {@code exclude=1,2,3} skips those challenge ids (used by the game screen).
+     */
     @GetMapping("/{id}/next-challenge")
     public NextChallengeResponse nextChallenge(@PathVariable Long id,
-                                               @RequestParam(required = false) Category category) {
-        return adaptiveService.nextChallenge(id, category);
+                                               @RequestParam(required = false) Category category,
+                                               @RequestParam(required = false) List<Long> exclude) {
+        return adaptiveService.nextChallenge(id, category, exclude);
     }
 
     /** Progress dashboard / Personal Performance Map. */

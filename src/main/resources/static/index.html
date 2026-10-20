@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mind Maze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="29" height="29" rx="8" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M7 25V12h6v8h6V7h6v18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Mind Maze</span>
+    </div>
+    <div class="hud" id="hud" hidden>
+      <div class="hud-item"><span class="hud-label">Lives</span><span id="hud-lives" class="hud-value hearts"></span></div>
+      <div class="hud-item"><span class="hud-label">Level</span><span id="hud-level" class="hud-value"></span></div>
+      <div class="hud-item"><span class="hud-label">Doors</span><span id="hud-doors" class="hud-value"></span></div>
+      <div class="hud-item"><span class="hud-label">Score</span><span id="hud-score" class="hud-value"></span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ START SCREEN ============ -->
+    <section id="screen-start" class="screen start">
+      <div class="start-copy">
+        <p class="eyebrow">An adaptive brain-challenge game</p>
+        <h1>Find your way out of the maze.</h1>
+        <p class="lead">Three levels, nine locked doors, one exit. Each door is a puzzle: logic, patterns,
+          memory, codes or maths. Answer correctly to open it. Get three wrong and the maze keeps you.</p>
+        <ul class="rules">
+          <li><b>Automatic progress.</b> Finish a level and your stats update by themselves.</li>
+          <li><b>Adaptive.</b> Do well and the doors get harder. Struggle and they ease off.</li>
+          <li><b>Hints.</b> Two per puzzle, but every hint costs 5 points.</li>
+          <li><b>Explained.</b> Every answer comes with the reasoning, right or wrong.</li>
+        </ul>
+        <form id="start-form" class="start-form" autocomplete="off">
+          <label for="name">Explorer name</label>
+          <div class="row">
+            <input id="name" name="name" type="text" minlength="3" maxlength="30" required placeholder="e.g. kavitha">
+            <button type="submit" class="btn primary" id="start-btn">Enter the maze</button>
+          </div>
+          <p class="form-error" id="start-error" role="alert" hidden></p>
+          <p class="hint-text">Use the same name again to continue with your saved progress.</p>
+        </form>
+      </div>
+      <div class="start-art" aria-hidden="true">
+        <svg viewBox="0 0 320 320" id="start-art"></svg>
+      </div>
+    </section>
+
+    <!-- ============ GAME SCREEN ============ -->
+    <section id="screen-game" class="screen game" hidden>
+      <div class="play">
+        <div class="maze-card">
+          <svg id="maze" viewBox="0 0 620 260" role="img" aria-label="Maze progress"></svg>
+        </div>
+
+        <div class="question-card" id="qcard">
+          <div class="q-meta">
+            <span class="chip" id="q-cat"></span>
+            <span class="chip diff" id="q-diff"></span>
+            <span class="q-points" id="q-points"></span>
+          </div>
+          <h2 id="q-title"></h2>
+          <p class="q-text" id="q-text"></p>
+          <p class="engine" id="q-engine"></p>
+
+          <div id="answer-area">
+            <div class="yesno" id="yesno" hidden>
+              <button type="button" class="btn choice" data-answer="yes">Yes</button>
+              <button type="button" class="btn choice" data-answer="no">No</button>
+            </div>
+            <form id="answer-form" autocomplete="off">
+              <input id="answer" type="text" placeholder="Type your answer" maxlength="100">
+              <button type="submit" class="btn primary" id="answer-btn">Open the door</button>
+            </form>
+            <div class="hint-row">
+              <button type="button" class="btn ghost" id="hint-btn">Need a hint? (&minus;5 pts)</button>
+              <span class="hint-count" id="hint-count"></span>
+            </div>
+            <ul class="hints" id="hints"></ul>
+          </div>
+
+          <div class="feedback" id="feedback" aria-live="polite" hidden></div>
+          <p class="form-error" id="game-error" role="alert" hidden></p>
+        </div>
+      </div>
+
+      <aside class="stats-card">
+        <h3>Your progress</h3>
+        <p class="stats-sub" id="stats-name"></p>
+        <div class="stat-grid">
+          <div><span class="stat-num" id="st-attempts">0</span><span class="stat-label">Attempts</span></div>
+          <div><span class="stat-num" id="st-accuracy">0%</span><span class="stat-label">Accuracy</span></div>
+          <div><span class="stat-num" id="st-points">0</span><span class="stat-label">Total points</span></div>
+        </div>
+        <h4>By category</h4>
+        <div class="bars" id="st-bars"></div>
+        <p class="stat-note" id="st-note"></p>
+      </aside>
+    </section>
+
+    <!-- ============ END SCREEN ============ -->
+    <section id="screen-end" class="screen end" hidden>
+      <div class="end-card">
+        <p class="eyebrow" id="end-eyebrow"></p>
+        <h1 id="end-title"></h1>
+        <p class="lead" id="end-text"></p>
+        <div class="stat-grid big">
+          <div><span class="stat-num" id="end-doors">0</span><span class="stat-label">Doors opened</span></div>
+          <div><span class="stat-num" id="end-score">0</span><span class="stat-label">Points this run</span></div>
+          <div><span class="stat-num" id="end-accuracy">0%</span><span class="stat-label">Overall accuracy</span></div>
+        </div>
+        <h4>Your performance map</h4>
+        <div class="bars" id="end-bars"></div>
+        <p class="stat-note" id="end-note"></p>
+        <div class="end-actions">
+          <button type="button" class="btn primary" id="again-btn">Play again</button>
+          <button type="button" class="btn ghost" id="switch-btn">New explorer</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Mind Maze &middot; Spring Boot + JPA backend &middot; <a href="swagger-ui.html">API docs</a></footer>
+  <script src="app.js"></script>
+</body>
+</html>

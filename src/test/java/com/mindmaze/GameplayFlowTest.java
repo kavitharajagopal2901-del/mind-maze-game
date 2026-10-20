@@ -204,6 +204,20 @@ class GameplayFlowTest {
     }
 
     @Test
+    @DisplayName("exclude=<ids> skips those challenges (a failed question is not repeated at once)")
+    void excludedChallengesAreSkipped() throws Exception {
+        long player = TestApi.createPlayer(mvc, om, "skipper");
+        long first = TestApi.createChallenge(mvc, om, "First", "LOGIC", "EASY", "a");
+        TestApi.createChallenge(mvc, om, "Second", "LOGIC", "EASY", "a");
+        TestApi.attempt(mvc, om, player, first, "wrong", 0); // failed, so still "unsolved"
+
+        mvc.perform(get("/api/players/" + player + "/next-challenge")
+                        .param("exclude", String.valueOf(first)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.challenge.title").value("Second"));
+    }
+
+    @Test
     @DisplayName("When nothing is left to solve the API returns 404")
     void nothingLeftReturns404() throws Exception {
         long player = TestApi.createPlayer(mvc, om, "finisher");

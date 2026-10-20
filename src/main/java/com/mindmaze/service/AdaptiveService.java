@@ -9,6 +9,7 @@ import com.mindmaze.model.Challenge;
 import com.mindmaze.model.Difficulty;
 import com.mindmaze.repository.AttemptRepository;
 import com.mindmaze.repository.ChallengeRepository;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +46,17 @@ public class AdaptiveService {
      */
     @Transactional(readOnly = true)
     public NextChallengeResponse nextChallenge(Long playerId, Category category) {
+        return nextChallenge(playerId, category, null);
+    }
+
+    /**
+     * Same as above, but also skips the challenge ids in {@code exclude}. The game screen uses this
+     * so a question the player just got wrong is not offered again straight away.
+     */
+    @Transactional(readOnly = true)
+    public NextChallengeResponse nextChallenge(Long playerId, Category category, Collection<Long> exclude) {
         playerService.getEntity(playerId); // 404 if the player does not exist
+        Set<Long> skip = exclude == null ? Set.of() : new HashSet<>(exclude);
 
         List<Attempt> recent = category == null
                 ? attemptRepository.findTop5ByPlayerIdOrderByIdDesc(playerId)
@@ -60,7 +71,7 @@ public class AdaptiveService {
 
         // Prefer the target difficulty; if it has run out, take the closest one available.
         Challenge pick = pool.stream()
-                .filter(c -> !solved.contains(c.getId()))
+                .filter(c -> !solved.contains(c.getId()) && !skip.contains(c.getId()))
                 .min(Comparator
                         .comparingInt((Challenge c) -> Math.abs(c.getDifficulty().ordinal() - target.ordinal()))
                         .thenComparing(Challenge::getId))
